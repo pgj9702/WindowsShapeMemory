@@ -46,7 +46,10 @@ class MonitorInfo:
         self.get_windows_handle()
 
         for handle in self.windows_handle:
-            temp_window_info = WindowInfo(handle_repr = handle.__repr__,
+            if handle.width == 0 or handle.height == 0:
+                continue
+
+            temp_window_info = WindowInfo(handle_repr = repr(handle),
                                           title = handle.title,
                                           top = handle.top,
                                           left = handle.left,
@@ -70,10 +73,15 @@ class MonitorInfo:
 
         for handle in self.windows_handle:
             for idx, val in enumerate(self.windows_info):
-                if handle.__repr__ == val.handle_repr:
-                    handle.move(val.left, val.top)
-                    handle.resize(val.width, val.height)
-                    val.pop(idx)
+                if repr(handle) == val.handle_repr:
+                    try :
+                        handle.moveTo(val.left, val.top)
+                        handle.width = val.width
+                        handle.height = val.height
+                    except :
+                        pass
+                        #print(repr(handle), handle.title, handle.width, handle.height, handle.top, handle.left)
+                    self.windows_info.pop(idx)
 
         self.clear_windows_handle()
 
@@ -111,29 +119,39 @@ if __name__ == '__main__':
         if i.isActive:
             print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
 
-    monitor_info.clear_windows_handle()
 
-    pyautogui.getActiveWindow().move
-    pyautogui.getActiveWindow().resize
+    input()
 
-    monitor_info.get_windows_handle()
+    monitor_info.set_window_shape(-1)
 
-    monitor_info.append_windows_info_list()
 
     for i in monitor_info.windows_info_list[0]:
         if i.isActive:
             print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
 
-    for i in monitor_info.windows_info_list[1]:
-        if i.isActive:
-            print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
+    # monitor_info.clear_windows_handle()
+
+
+
+
+    # monitor_info.get_windows_handle()
+    #
+    # monitor_info.append_windows_info_list()
+    #
+    # for i in monitor_info.windows_info_list[0]:
+    #     if i.isActive:
+    #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
+    #
+    # for i in monitor_info.windows_info_list[1]:
+    #     if i.isActive:
+    #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
 
 
     # for i in pyautogui.getAllWindows():
     #     if i.visible :
     #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
 
-    print(type(datetime.now()))
+    # print(type(datetime.now()))
 
 
     # app = QApplication([])
