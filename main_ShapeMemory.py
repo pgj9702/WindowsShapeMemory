@@ -1,5 +1,4 @@
 import ctypes
-import pywin32
 
 def print_hi(name):
     ctypes.windll.user32.LockWorkStation()
