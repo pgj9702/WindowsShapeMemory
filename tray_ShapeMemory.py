@@ -15,7 +15,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         # main main_menu
         main_menu = QMenu(parent)
 
-        openAction = main_menu.addAction("열기")
+        openAction = main_menu.addAction("설정")
 
         sub_menu = main_menu.addMenu('test')
 
@@ -40,7 +40,7 @@ def main():
 
     trayIcon.show()
 
-    trayIcon.showMessage("제목", "내용", 1, 10000)
+    # trayIcon.showMessage("제목", "내용", 1, 10000)
 
     sys.exit(app.exec_())
 
