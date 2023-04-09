@@ -20,7 +20,7 @@ class WindowInfo:
 class WindowsControl:
     windows_handle = []
     windows_info = []
-    windows_info_datetime_list = []  # (datetime, WindowInfo)
+    windows_info_datetime_dict = {}  # datetime: WindowInfo
 
     # windows_handle
     def set_windows_handle(self):
@@ -29,9 +29,10 @@ class WindowsControl:
     def clear_windows_handle(self):
         self.windows_handle.clear()
 
-    # windows_info_datetime_list
+    # windows_info_datetime_dict
     def append_windows_info_with_datetime(self):
         temp_list = []
+        current_time: datetime
         self.set_windows_handle()
 
         for handle in self.windows_handle:
@@ -50,58 +51,77 @@ class WindowsControl:
 
             temp_list.append(temp_window_info)
 
-        self.windows_info_datetime_list.append((datetime.now(), temp_list))
+        current_time = datetime.now()
+        self.windows_info_datetime_dict[current_time.strftime('%m/%d %H:%M:%S')] = temp_list
         self.clear_windows_handle()
 
-    def set_windows_info_to_list(self, index):
-        self.windows_info = copy.copy(self.windows_info_datetime_list[index][1])
+        return current_time.strftime('%m/%d %H:%M:%S')
 
-    def set_window_shape(self, index):
-        self.set_windows_info_to_list(index)
-        self.set_windows_handle()
+    def set_windows_info_to_dict(self, key):
+        if key in self.windows_info_datetime_dict:
+            self.windows_info = copy.copy(self.windows_info_datetime_dict[key])
+            return 0
+        else:
+            return -1
 
-        for handle in self.windows_handle:
-            if handle.width == 0 and handle.height == 0:
-                continue
+    def set_window_shape(self, key):
+        if self.set_windows_info_to_dict(key) == -1:
+            return -1
 
-            for idx, val in enumerate(self.windows_info):
-                if repr(handle) == val.handle_repr:
-                    try:
-                        handle.moveTo(val.left, val.top)
-                        handle.width = val.width
-                        handle.height = val.height
-                        handle.isActive = val.isActive
-                        handle.isMaximized = val.isMaximized
-                        handle.isMinimized = val.isMinimized
+        try:
+            self.set_windows_handle()
 
-                    except (Exception,):
-                        pass
-                        # print(repr(handle), handle.title, handle.width, handle.height, handle.top, handle.left)
+            for handle in self.windows_handle:
+                if handle.width == 0 and handle.height == 0:
+                    continue
 
-                    finally:
-                        self.windows_info.pop(idx)
+                for idx, val in enumerate(self.windows_info):
+                    if repr(handle) == val.handle_repr:
+                        try:
+                            handle.moveTo(val.left, val.top)
+                            handle.width = val.width
+                            handle.height = val.height
+                            handle.isActive = val.isActive
+                            handle.isMaximized = val.isMaximized
+                            handle.isMinimized = val.isMinimized
 
-        self.clear_windows_handle()
+                        except (Exception,):
+                            pass
+                            # print(repr(handle), handle.title, handle.width, handle.height, handle.top, handle.left)
 
-    def remove_windows_info_datetime_list(self, index):
-        self.windows_info_datetime_list.pop(index)
+                        finally:
+                            self.windows_info.pop(idx)
+                            break
+
+            self.clear_windows_handle()
+
+            return 0
+
+        except (Exception,):
+            return -1
+
+    def remove_windows_info_datetime_dict(self, key):
+        del(self.windows_info_datetime_dict[key])
 
 
-    def clear_windows_info_datetime_list(self):
-        self.windows_info_datetime_list.clear()
+    def clear_windows_info_datetime_dict(self):
+        self.windows_info_datetime_dict.clear()
 
     # datetime_list
-    def get_datetime_list(self, index):
-        return [i[0] for i in self.windows_info_datetime_list]
+    def get_datetime_list(self):
+        return [key for key, in self.windows_info_datetime_dict]
 
 
 if __name__ == '__main__':
-    monitor_info = WindowsControl()
 
-    monitor_info.set_windows_handle()
+    print(datetime.now().strftime('%m/%d %H:%M:%S'))
 
-    for i in monitor_info.windows_handle:
-        print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
+    # monitor_info = WindowsControl()
+    #
+    # monitor_info.set_windows_handle()
+    #
+    # for i in monitor_info.windows_handle:
+    #     print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
 
 
     # monitor_info.append_windows_info_with_datetime()
@@ -116,11 +136,11 @@ if __name__ == '__main__':
     #
     # monitor_info.append_windows_info_with_datetime()
     #
-    # for i in monitor_info.windows_info_datetime_list[0]:
+    # for i in monitor_info.windows_info_datetime_dict[0]:
     #     if i.isActive:
     #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
     #
-    # for i in monitor_info.windows_info_datetime_list[1]:
+    # for i in monitor_info.windows_info_datetime_dict[1]:
     #     if i.isActive:
     #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
 
