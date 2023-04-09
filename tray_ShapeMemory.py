@@ -36,7 +36,7 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
         # 윈도우 정보 추가 + 윈도우 잠금 메뉴
         add_windows_info_and_lock_action = self.main_menu.addAction("화면 저장 후 윈도우 잠금")
-        add_windows_info_and_lock_action.triggered.connect(self.set_windows_and_lock)
+        add_windows_info_and_lock_action.triggered.connect(self.add_menu_datetime_and_lock)
 
         # 윈도우 정보 추가 메뉴
         add_windows_info_action = self.main_menu.addAction("화면 저장")
@@ -93,7 +93,7 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
     def add_menu_datetime_and_lock(self):
 
-        print('set_windows_and_lock')
+        print('add_menu_datetime_and_lock')
 
         if self.add_menu_datetime() == -1:
             self.showMessage('불러오기 실패')

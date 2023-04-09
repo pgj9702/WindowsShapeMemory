@@ -26,8 +26,10 @@ class WindowsControl:
     def set_windows_handle(self):
         self.windows_handle = pyautogui.getAllWindows()
 
+
     def clear_windows_handle(self):
         self.windows_handle.clear()
+
 
     # windows_info_datetime_dict
     def append_windows_info_with_datetime(self):
