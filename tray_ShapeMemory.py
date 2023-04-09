@@ -4,14 +4,23 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from ctypes import windll
+from PyQt5 import uic
 
 from settings import *
 from windows_control import WindowsControl, WindowInfo
 from datetime import datetime
 
+# icon_path = r'image\tray_icon.png'
+icon_path = r'.\icon.ico'
+
+icon_file_name = 'icon.ico'
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
-    icon_path = r'image\tray_icon.png'
     
     main_men: QMenu
 
@@ -20,6 +29,7 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
     datetime_menu_list = []
 
     def __init__(self, icon, parent=None):
+
         QSystemTrayIcon.__init__(self, icon, parent)
 
         # main self.main_menu
@@ -137,15 +147,21 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
 
 def run_app():
+    # main_ui = resource_path('main.ui')
+    # Ui_MainWindow = uic.loadUiType(main_ui)[0]  # ui 가져오기
+
     app = QApplication(sys.argv)
 
     w = QWidget()
 
-    trayIcon = SystemTrayIcon(QIcon(SystemTrayIcon.icon_path), w)
+    ico = resource_path(icon_file_name)
+
+    trayIcon = SystemTrayIcon(QIcon(ico), w)
 
     trayIcon.show()
 
     app.exec_()
+
 
 
 if __name__ == '__main__':
