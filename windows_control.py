@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 import pyautogui
 from dataclasses import dataclass
+import win32gui
 
 
 @dataclass
@@ -78,18 +79,30 @@ class WindowsControl:
                     continue
 
                 for idx, val in enumerate(self.windows_info):
+                    print(repr(handle), '   /   ', val.handle_repr)
                     if repr(handle) == val.handle_repr:
                         try:
+                            # 2023-04-15
+                            """
                             handle.moveTo(val.left, val.top)
                             handle.width = val.width
                             handle.height = val.height
                             handle.isActive = val.isActive
                             handle.isMaximized = val.isMaximized
                             handle.isMinimized = val.isMinimized
+                            """
 
-                        except (Exception,):
+                            print('test  ', handle.title + '   ' , '$', repr(handle), '$',str(handle.top), '   ', str(handle.left) +  '   ', str(handle.width),  '   ', str(handle.height) , handle.isMinimized)
+                            handle.moveTo(val.left, val.top)
+                            handle.resizeTo(val.width, val.height)
+                            # handle.isActive = val.isActive
+                            # handle.isMaximized = val.isMaximized
+                            # handle.isMinimized = val.isMinimized
+
+                        except Exception as e:
                             pass
-                            # print(repr(handle), handle.title, handle.width, handle.height, handle.top, handle.left)
+                            print(e)
+                            print('ERROR  ', repr(handle), handle.title, handle.width, handle.height, handle.top, handle.left)
 
                         finally:
                             self.windows_info.pop(idx)
@@ -118,19 +131,24 @@ if __name__ == '__main__':
 
     print(datetime.now().strftime('%m/%d %H:%M:%S'))
 
-    # monitor_info = WindowsControl()
-    #
-    # monitor_info.set_windows_handle()
-    #
-    # for i in monitor_info.windows_handle:
-    #     print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
+    monitor_info = WindowsControl()
+
+    monitor_info.set_windows_handle()
+
+    monitor_info.clear_windows_handle()
+
+    for i in monitor_info.windows_handle:
+        print('test  ', i.title + '   ' , '$', repr(i), '$',str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) , i.isMinimized)
 
 
-    # monitor_info.append_windows_info_with_datetime()
+    monitor_info.append_windows_info_with_datetime()
 
-    # input()
+    a = input()
 
-    # monitor_info.set_window_shape(-1)
+    monitor_info.set_window_shape(a)
+
+    # print(pyautogui.getActiveWindow().__class__)
+
 
     # monitor_info.clear_windows_handle()
 
