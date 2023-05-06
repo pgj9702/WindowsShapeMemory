@@ -92,7 +92,7 @@ class WindowsControl:
                             handle.isMinimized = val.isMinimized
                             """
 
-                            print('test  ', handle.title + '   ' , '$', repr(handle), '$',str(handle.top), '   ', str(handle.left) +  '   ', str(handle.width),  '   ', str(handle.height) , handle.isMinimized)
+                            # print('test  ', handle.title + '   ' , '$', repr(handle), '$',str(handle.top), '   ', str(handle.left) +  '   ', str(handle.width),  '   ', str(handle.height) , handle.isMinimized)
                             handle.moveTo(val.left, val.top)
                             handle.resizeTo(val.width, val.height)
                             # handle.isActive = val.isActive
