@@ -1,6 +1,3 @@
-import copy
-
-import win32con
 import win32gui
 import win32api
 
@@ -11,43 +8,34 @@ https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-windowpla
 
 """
 
-def getWindowList():
+
+def get_hwnd_placement_list():
     def callback(hwnd, hwnd_list: list):
         try:
 
-            title = win32gui.GetWindowText(hwnd)
+            if win32gui.IsWindowEnabled(hwnd) and win32gui.IsWindowVisible(hwnd) and win32gui.GetWindowText(hwnd):
 
-            if win32gui.IsWindowEnabled(hwnd) and win32gui.IsWindowVisible(hwnd) and title:
-                hwnd_list.append((title, hwnd))
+                placement = win32gui.GetWindowPlacement(hwnd)
 
-            result = True
+                hwnd_list.append((hwnd, placement))
+
 
         except Exception as e:
-            win32api.MessageBox(0, 'getWindowList\n' + e, __name__, 16)
+            win32api.MessageBox(0, 'error! getWindowList\n' + str(e), __name__, 16)
 
-            result = False
+            return -1
 
-        return result
+    hwnd_placement_list = []
 
-    output = []
+    win32gui.EnumWindows(callback, hwnd_placement_list)
 
-    win32gui.EnumWindows(callback, output)
+    return hwnd_placement_list
 
-    return output
+
 
 if __name__ == '__main__':
-    window_list = getWindowList()
 
-    window_rect_list = []
+    hwnd_placement_list = get_hwnd_placement_list()
 
-    for title, hwnd in window_list:
-        # win32gui.ShowWindow()
-
-        hwnd_placement = win32gui.GetWindowPlacement(hwnd)
-
-        window_rect_list.append((hwnd, hwnd_placement))
-
-    a = input()
-
-    for hwnd, rect in window_rect_list:
-        win32gui.SetWindowPlacement(hwnd, rect)
+    for i, v in hwnd_placement_list:
+        print(i, v)
