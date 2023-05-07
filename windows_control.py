@@ -1,173 +1,71 @@
 import copy
 from datetime import datetime
-import pyautogui
 from dataclasses import dataclass
 import win32gui
+import win32api
+
+DATETIME_FORMAT = '%m/%d %H:%M:%S'
 
 
 @dataclass
 class WindowInfo:
-    handle_repr: str = ''
+    hwnd: int = 0
     title: str = ''
-    top: int = 0
-    left: int = 0
-    width: int = 0
-    height: int = 0
-    isActive: bool = False
-    isMaximized: bool = False
-    isMinimized: bool = False
+    placement: tuple = ()
 
 
 class WindowsControl:
-    windows_handle = []
-    windows_info = []
-    windows_info_datetime_dict = {}  # datetime: WindowInfo
+    dict_datetime_window_info = {}  # datetime: WindowInfo
 
-    # windows_handle
-    def set_windows_handle(self):
-        self.windows_handle = pyautogui.getAllWindows()
+    # append_windows_info_to_dict (datetime: WindowInfo)
+    def append_windows_info_to_dict(self):
+        def callback(hwnd, hwnd_list: list):
+            title = win32gui.GetWindowText(hwnd)
 
+            if win32gui.IsWindowEnabled(hwnd) and win32gui.IsWindowVisible(hwnd) and title:
+                placement = win32gui.GetWindowPlacement(hwnd)
 
-    def clear_windows_handle(self):
-        self.windows_handle.clear()
+                temp_window_info = WindowInfo(hwnd=hwnd,
+                                              title=title,
+                                              placement=placement)
 
-
-    # windows_info_datetime_dict
-    def append_windows_info_with_datetime(self):
-        temp_list = []
-        current_time: datetime
-        self.set_windows_handle()
-
-        for handle in self.windows_handle:
-            if handle.width == 0 and handle.height == 0:
-                continue
-
-            temp_window_info = WindowInfo(handle_repr=repr(handle),
-                                          title=handle.title,
-                                          top=handle.top,
-                                          left=handle.left,
-                                          width=handle.width,
-                                          height=handle.height,
-                                          isActive=handle.isActive,
-                                          isMaximized=handle.isMaximized,
-                                          isMinimized=handle.isMinimized)
-
-            temp_list.append(temp_window_info)
-
-        current_time = datetime.now()
-        self.windows_info_datetime_dict[current_time.strftime('%m/%d %H:%M:%S')] = temp_list
-        self.clear_windows_handle()
-
-        return current_time.strftime('%m/%d %H:%M:%S')
-
-    def set_windows_info_to_dict(self, key):
-        if key in self.windows_info_datetime_dict:
-            self.windows_info = copy.copy(self.windows_info_datetime_dict[key])
-            return 0
-        else:
-            return -1
-
-    def set_window_shape(self, key):
-        if self.set_windows_info_to_dict(key) == -1:
-            return -1
-
-        try:
-            self.set_windows_handle()
-
-            for handle in self.windows_handle:
-                if handle.width == 0 and handle.height == 0:
-                    continue
-
-                for idx, val in enumerate(self.windows_info):
-                    print(repr(handle), '   /   ', val.handle_repr)
-                    if repr(handle) == val.handle_repr:
-                        try:
-                            # 2023-04-15
-                            """
-                            handle.moveTo(val.left, val.top)
-                            handle.width = val.width
-                            handle.height = val.height
-                            handle.isActive = val.isActive
-                            handle.isMaximized = val.isMaximized
-                            handle.isMinimized = val.isMinimized
-                            """
-
-                            # print('test  ', handle.title + '   ' , '$', repr(handle), '$',str(handle.top), '   ', str(handle.left) +  '   ', str(handle.width),  '   ', str(handle.height) , handle.isMinimized)
-                            handle.moveTo(val.left, val.top)
-                            handle.resizeTo(val.width, val.height)
-                            # handle.isActive = val.isActive
-                            # handle.isMaximized = val.isMaximized
-                            # handle.isMinimized = val.isMinimized
-
-                        except Exception as e:
-                            pass
-                            print(e)
-                            print('ERROR  ', repr(handle), handle.title, handle.width, handle.height, handle.top, handle.left)
-
-                        finally:
-                            self.windows_info.pop(idx)
-                            break
-
-            self.clear_windows_handle()
-
-            return 0
-
-        except (Exception,):
-            return -1
-
-    def remove_windows_info_datetime_dict(self, key):
-        del(self.windows_info_datetime_dict[key])
+                hwnd_list.append(temp_window_info)
 
 
-    def clear_windows_info_datetime_dict(self):
-        self.windows_info_datetime_dict.clear()
+        window_info_list = []
 
-    # datetime_list
+        win32gui.EnumWindows(callback, window_info_list)
+
+        current_time = datetime.now().strftime(DATETIME_FORMAT)
+
+        self.dict_datetime_window_info[current_time] = window_info_list
+
+        return current_time
+
+    def set_windows_from_dict(self, key):
+        window_info_list = self.dict_datetime_window_info[key]
+
+        for window_info in window_info_list:
+            win32gui.SetWindowPlacement(window_info.hwnd, window_info.placement)
+
+    def remove_from_dict(self, key):
+        del (self.dict_datetime_window_info[key])
+
+    def clear_dict(self):
+        self.dict_datetime_window_info.clear()
+
+    # get_datetime_list
     def get_datetime_list(self):
-        return [key for key, in self.windows_info_datetime_dict]
+        return [key for key in self.dict_datetime_window_info.keys()]
 
 
 if __name__ == '__main__':
+    window_control = WindowsControl()
 
-    print(datetime.now().strftime('%m/%d %H:%M:%S'))
+    window_control.append_windows_info_to_dict()
 
-    monitor_info = WindowsControl()
-
-    monitor_info.set_windows_handle()
-
-    monitor_info.clear_windows_handle()
-
-    for i in monitor_info.windows_handle:
-        print('test  ', i.title + '   ' , '$', repr(i), '$',str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) , i.isMinimized)
-
-
-    monitor_info.append_windows_info_with_datetime()
+    print(window_control.get_datetime_list())
 
     a = input()
 
-    monitor_info.set_window_shape(a)
-
-    # print(pyautogui.getActiveWindow().__class__)
-
-
-    # monitor_info.clear_windows_handle()
-
-    # monitor_info.set_windows_handle()
-    #
-    # monitor_info.append_windows_info_with_datetime()
-    #
-    # for i in monitor_info.windows_info_datetime_dict[0]:
-    #     if i.isActive:
-    #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
-    #
-    # for i in monitor_info.windows_info_datetime_dict[1]:
-    #     if i.isActive:
-    #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
-
-    # for i in pyautogui.getAllWindows():
-    #     if i.visible :
-    #         print('test  ', i.title + '   ' , str(i.top), '   ', str(i.left) +  '   ', str(i.width),  '   ', str(i.height) )
-
-    # print(type(datetime.now()))
-
-    # app = QApplication([])
+    window_control.set_windows_from_dict(a)

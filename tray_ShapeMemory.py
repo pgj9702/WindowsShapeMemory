@@ -1,27 +1,25 @@
 import sys
-import PyQt5
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from ctypes import windll
-from PyQt5 import uic
 
 from settings import *
-from windows_control import WindowsControl, WindowInfo
-from datetime import datetime
+from windows_control import WindowsControl
 
 # icon_path = r'image\tray_icon.png'
+
 icon_path = r'.\icon.ico'
 
 icon_file_name = 'icon.ico'
+
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
+
 class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
-    
     main_men: QMenu
 
     datetime_section: QAction
@@ -64,7 +62,6 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
         self.activated.connect(self.activation_reason)
 
-
     def activation_reason(self, index):
         if index == 0:  # Unknown
             print("Unknown")
@@ -77,13 +74,12 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
         if index == 4:  # Middle Click
             print("Middle Click")
 
-
     def add_menu_datetime(self):
 
-        print('add_menu_datetime')
+        # print('add_menu_datetime')
 
         try:
-            current_time = self.append_windows_info_with_datetime()
+            current_time = self.append_windows_info_to_dict()
 
             action = self.main_menu.addAction(current_time)
 
@@ -96,17 +92,16 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
             return 0
 
         except Exception as e:
-            self.showMessage(e)
+            self.showMessage('Error', str(e))
 
             return -1
 
-
     def add_menu_datetime_and_lock(self):
 
-        print('add_menu_datetime_and_lock')
+        # print('add_menu_datetime_and_lock')
 
         if self.add_menu_datetime() == -1:
-            self.showMessage('불러오기 실패')
+            self.showMessage('Error', '불러오기 실패')
 
             return -1
 
@@ -115,10 +110,9 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
             return 0
 
-
     def remove_menu_datetime(self, index: int = 1):
 
-        print('remove_menu_datetime')
+        # print('remove_menu_datetime')
 
         self.main_menu.removeAction(self.datetime_menu_list[index])
 
@@ -128,17 +122,16 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
             return 0
 
         except Exception as e:
-            self.ShowMessage(e)
+            self.showMessage('Error', str(e))
 
             return -1
 
-
     def set_windows(self):
 
-        print('set_windows')
+        # print('set_windows')
 
-        if self.set_window_shape(self.sender().text()) == -1:
-            self.showMessage('불러오기 실패')
+        if self.set_windows_from_dict(self.sender().text()) == -1:
+            self.showMessage('Error', '불러오기 실패')
 
             return -1
 
@@ -161,7 +154,6 @@ def run_app():
     trayIcon.show()
 
     app.exec_()
-
 
 
 if __name__ == '__main__':
