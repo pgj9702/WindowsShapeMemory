@@ -36,17 +36,21 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
         # 설정 메뉴
         settings_action = self.main_menu.addAction("설정")
 
+        # 화면 정보 전부 삭제
+        clear_windows_info_action = self.main_menu.addAction("초기화")
+        clear_windows_info_action.triggered.connect(self.add_menu_datetime_and_lock)
+
         # Seperator 추가
         self.main_menu.addSeparator()
 
-        # Seperator 추가
+        # Seperator 추가 (datetime_section)
         self.datetime_section = self.main_menu.addSeparator()
 
-        # 윈도우 정보 추가 + 윈도우 잠금 메뉴
+        # 화면 정보 추가 + 윈도우 잠금 메뉴
         add_windows_info_and_lock_action = self.main_menu.addAction("화면 저장 후 윈도우 잠금")
         add_windows_info_and_lock_action.triggered.connect(self.add_menu_datetime_and_lock)
 
-        # 윈도우 정보 추가 메뉴
+        # 화면 정보 추가 메뉴
         add_windows_info_action = self.main_menu.addAction("화면 저장")
         add_windows_info_action.triggered.connect(self.add_menu_datetime)
 
@@ -110,14 +114,18 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
             return 0
 
-    def remove_menu_datetime(self, index: int = 1):
+    def remove_menu_datetime(self, index: int = 0):
 
         # print('remove_menu_datetime')
 
-        self.main_menu.removeAction(self.datetime_menu_list[index])
+        if not (0 <= index < len(self.datetime_menu_list)):
+            return -1
 
         try:
+            temp_datetime = self.datetime_menu_list[index].text()
+            self.main_menu.removeAction(self.datetime_menu_list[index])
             self.datetime_menu_list.pop(index)
+            self.remove_from_dict(temp_datetime)
 
             return 0
 
@@ -125,6 +133,23 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
             self.showMessage('Error', str(e))
 
             return -1
+
+
+    def clear_menu_datetime(self):
+        try:
+            for index, action in enumerate(self.datetime_menu_list):
+                temp_datetime = action.text()
+                self.main_menu.removeAction(action)
+                self.datetime_menu_list.pop(index)
+                self.remove_from_dict(temp_datetime)
+
+            return 0
+
+        except Exception as e:
+            self.showMessage('Error', str(e))
+
+            return -1
+
 
     def set_windows(self):
 

@@ -31,7 +31,6 @@ class WindowsControl:
 
                 hwnd_list.append(temp_window_info)
 
-
         window_info_list = []
 
         win32gui.EnumWindows(callback, window_info_list)
@@ -45,8 +44,13 @@ class WindowsControl:
     def set_windows_from_dict(self, key):
         window_info_list = self.dict_datetime_window_info[key]
 
-        for window_info in window_info_list:
-            win32gui.SetWindowPlacement(window_info.hwnd, window_info.placement)
+        try:
+
+            for window_info in window_info_list:
+                win32gui.SetWindowPlacement(window_info.hwnd, window_info.placement)
+
+        except (Exception,):
+            pass
 
     def remove_from_dict(self, key):
         del (self.dict_datetime_window_info[key])
