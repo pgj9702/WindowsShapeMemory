@@ -1,10 +1,15 @@
-import copy
 from datetime import datetime
 from dataclasses import dataclass
 import win32gui
-import win32api
+
+"""
+- docu placement
+https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-windowplacement
+
+"""
 
 DATETIME_FORMAT = '%m/%d %H:%M:%S'
+LEN_DATETIME_FORMAT = len('%m/%d %H:%M:%S')
 
 
 @dataclass

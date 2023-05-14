@@ -2,9 +2,10 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from ctypes import windll
+import win32gui
 
 from settings import *
-from windows_control import WindowsControl
+from windows_control import WindowsControl, LEN_DATETIME_FORMAT
 
 # icon_path = r'image\tray_icon.png'
 
@@ -78,14 +79,14 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
         if index == 4:  # Middle Click
             print("Middle Click")
 
-    def add_menu_datetime(self):
+    def add_menu_datetime(self, text=''):
 
         # print('add_menu_datetime')
 
         try:
             current_time = self.append_windows_info_to_dict()
 
-            action = self.main_menu.addAction(current_time)
+            action = self.main_menu.addAction(current_time + ' ' + text)
 
             action.triggered.connect(self.set_windows)
 
@@ -125,7 +126,7 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
             temp_datetime = self.datetime_menu_list[index].text()
             self.main_menu.removeAction(self.datetime_menu_list[index])
             self.datetime_menu_list.pop(index)
-            self.remove_from_dict(temp_datetime)
+            self.remove_from_dict(temp_datetime[0:LEN_DATETIME_FORMAT])
 
             return 0
 
@@ -141,7 +142,7 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
                 temp_datetime = action.text()
                 self.main_menu.removeAction(action)
                 self.datetime_menu_list.pop(index)
-                self.remove_from_dict(temp_datetime)
+                self.remove_from_dict(temp_datetime[0:LEN_DATETIME_FORMAT])
 
             return 0
 
@@ -155,13 +156,14 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
         # print('set_windows')
 
-        if self.set_windows_from_dict(self.sender().text()) == -1:
+        if self.set_windows_from_dict(self.sender().text()[0:LEN_DATETIME_FORMAT]) == -1:
             self.showMessage('Error', '불러오기 실패')
 
             return -1
 
         else:
             return 0
+
 
 
 def run_app():
