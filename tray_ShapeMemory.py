@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from ctypes import windll
+import threading
 import win32gui
 
 from settings import *
@@ -25,9 +26,15 @@ class SystemTrayIcon(QSystemTrayIcon, WindowsControl):
 
     datetime_section: QAction
 
+    thread_get_win_message: threading.Thread
+
     datetime_menu_list = []
 
+
     def __init__(self, icon, parent=None):
+
+        # thread_get_win_message
+        # thread_get_win_message =
 
         QSystemTrayIcon.__init__(self, icon, parent)
 
